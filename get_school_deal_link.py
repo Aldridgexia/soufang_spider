@@ -2,6 +2,9 @@
 import requests
 import numpy as np
 from bs4 import BeautifulSoup as BS 
+from pandas import DataFrame
+import pandas as pd 
+pd.set_option('expand_frame_repr', False)
 
 headers = {
 	"User-Agent":'',
@@ -32,21 +35,25 @@ link_xihu = 'http://esf.hz.fang.com/school-a0151/'
 link_gongshu = 'http://esf.hz.fang.com/school-a0152/'
 # 江干区
 link_jianggan = 'http://esf.hz.fang.com/school-a0153/'
-
+# 五个城区名称用编号0到4表示
+chengqu_name_dict = {
+	0: u'上城区', 1: u'下城区', 2: u'西湖区', 3: u'拱墅区', 4: u'江干区'
+}
 
 # 获取学校列表页当中每个学校的独立页面链接
 # url1 = 'http://esf.hz.fang.com/school-a0151/i31/'
 # url2 = 'http://esf.hz.fang.com/school-a0151/i32/'
 
-
+# 存放爬取结果的容器
 school_deal_link_dict = {}
+school_deal_link_df = DataFrame(columns=['district', 'school_name', 'deal_link'])
 
 
 def getSchoolDealLink(url, school_deal_link_dict):
 	base_session = requests.session()
 	base_res = base_session.get(url,headers=headers, verify=False)
 	base_soup = BS(base_res.text, 'lxml')
-	print('Connect successfully!')
+	print('Deal page connects successfully!')
 	next_page = base_soup.find('a', {'id':'PageControl1_hlk_next'})
 	if next_page:
 		next_page = next_page['href']
@@ -74,7 +81,12 @@ def getSchoolDealLink(url, school_deal_link_dict):
 for i in xrange(149, 154):
 	url = 'http://esf.hz.fang.com/school-a0%i/' % i
 	temp_dict = {}
+	temp_df = DataFrame(columns=['district', 'school_name', 'deal_link'])
 	temp_dict = getSchoolDealLink(url, temp_dict)
+	temp_df['school_name'] = temp_dict.keys()
+	temp_df['deal_link'] = temp_dict.values()
+	temp_df['district'] = chengqu_name_dict[i - 149]
+	school_deal_link_df = pd.concat([school_deal_link_df, temp_df], axis=0)
 	school_deal_link_dict.update(temp_dict)
 
 # 测试
@@ -83,3 +95,4 @@ for i in xrange(149, 154):
 
 # for value in school_deal_link_dict.values():
 # 	print value
+# print school_deal_link_df
