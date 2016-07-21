@@ -21,29 +21,65 @@ usr_agents = [
 judge_num = np.random.randint(0,5)
 headers["User-Agent"] = usr_agents[judge_num]
 
+# 五个主城区各自拥有的学校页面链接
+# 上城区
+link_shangcheng = 'http://esf.hz.fang.com/school-a0149/'
+# 下城区
+link_xiacheng = 'http://esf.hz.fang.com/school-a0150/'
+# 西湖区
+link_xihu = 'http://esf.hz.fang.com/school-a0151/'
+# 拱墅区
+link_gongshu = 'http://esf.hz.fang.com/school-a0152/'
+# 江干区
+link_jianggan = 'http://esf.hz.fang.com/school-a0153/'
+
+
 # 获取学校列表页当中每个学校的独立页面链接
-url1 = 'http://esf.hz.fang.com/school-a0151/i31/'
-url2 = 'http://esf.hz.fang.com/school-a0151/i32/'
+# url1 = 'http://esf.hz.fang.com/school-a0151/i31/'
+# url2 = 'http://esf.hz.fang.com/school-a0151/i32/'
 
 
-def getSchoolLink(url):
+school_deal_link_dict = {}
+
+
+def getSchoolDealLink(url, school_deal_link_dict):
 	base_session = requests.session()
 	base_res = base_session.get(url,headers=headers, verify=False)
 	base_soup = BS(base_res.text, 'lxml')
 	print('Connect successfully!')
+	next_page = base_soup.find('a', {'id':'PageControl1_hlk_next'})
+	if next_page:
+		next_page = next_page['href']
+		next_page_link = 'http://esf.hz.fang.com/' + next_page
+		# print next_page_link
+		# 递归调用自身，获取全部链接
+		getSchoolDealLink(next_page_link, school_deal_link_dict)
 	school_list = base_soup.find('div',{'class':'schoollist'})
 	schools = school_list.findAll('dl')
 	link_base = 'http://esf.hz.fang.com'
-	school_link_dict = {}
 	for school in schools:
 		school_name = school.find('p',{'class':'title'}).a.get_text()
 		link_middle = school.find('p',{'class':'title'}).a['href'][:-4]
 		link_complete = link_base + link_middle + '/deal/#deal'
 		# print link_complete
-		school_link_dict[school_name] = link_complete
-	return school_link_dict
+		school_deal_link_dict[school_name] = link_complete
+	return school_deal_link_dict
 
-schoolDict1 = getSchoolLink(url1)
-schoolDict2 = getSchoolLink(url2)
-del schoolDict2[u'大禹路小学甲来路校区']
+# schoolDict1 = getSchoolLink(url1)
+# schoolDict2 = getSchoolLink(url2)
+# del schoolDict2[u'大禹路小学甲来路校区']
 # print schoolDict1
+
+# 获取各个城区全部学校的独立链接
+for i in xrange(149, 154):
+	url = 'http://esf.hz.fang.com/school-a0%i/' % i
+	temp_dict = {}
+	temp_dict = getSchoolDealLink(url, temp_dict)
+	school_deal_link_dict.update(temp_dict)
+
+# 测试
+# for key in school_deal_link_dict.keys():
+# 	print key 
+
+# for value in school_deal_link_dict.values():
+# 	print value
