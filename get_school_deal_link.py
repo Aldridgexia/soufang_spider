@@ -11,7 +11,6 @@ headers = {
 	"accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
 	"accept-encoding":"gzip, deflate, sdch",
 	"accept-language":"zh-CN,zh;q=0.8,en;q=0.6",
-	"referer":"https://www.quantnet.com/tracker/",
 	"upgrade-insecure-requests":"1",
 }
 usr_agents = [
@@ -40,15 +39,11 @@ chengqu_name_dict = {
 	0: u'上城区', 1: u'下城区', 2: u'西湖区', 3: u'拱墅区', 4: u'江干区'
 }
 
-# 获取学校列表页当中每个学校的独立页面链接
-# url1 = 'http://esf.hz.fang.com/school-a0151/i31/'
-# url2 = 'http://esf.hz.fang.com/school-a0151/i32/'
-
 # 存放爬取结果的容器
 school_deal_link_dict = {}
 school_deal_link_df = DataFrame(columns=['district', 'school_name', 'deal_link'])
 
-
+# 获取学校成交记录页面链接的函数
 def getSchoolDealLink(url, school_deal_link_dict):
 	base_session = requests.session()
 	base_res = base_session.get(url,headers=headers, verify=False)
@@ -71,11 +66,6 @@ def getSchoolDealLink(url, school_deal_link_dict):
 		# print link_complete
 		school_deal_link_dict[school_name] = link_complete
 	return school_deal_link_dict
-
-# schoolDict1 = getSchoolLink(url1)
-# schoolDict2 = getSchoolLink(url2)
-# del schoolDict2[u'大禹路小学甲来路校区']
-# print schoolDict1
 
 # 获取各个城区全部学校的独立链接
 for i in xrange(149, 154):

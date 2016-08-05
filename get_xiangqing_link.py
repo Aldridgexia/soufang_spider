@@ -17,7 +17,6 @@ headers = {
     "accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "accept-encoding":"gzip, deflate, sdch",
     "accept-language":"zh-CN,zh;q=0.8,en;q=0.6",
-    "referer":"https://www.quantnet.com/tracker/",
     "upgrade-insecure-requests":"1",
 }
 usr_agents = [
@@ -48,16 +47,12 @@ def get_target_link(url):
     print 'search page connect successfully!'
     target_link = ''
     try:
-        target_link = soup.find('a',{'class':'iconXQ ml10'})['href']
-    except TypeError:
-        target_link = 'not find'
-        print 'cannot find target link!'
-    # print target_link['href']
-    if target_link:
+        target_link = soup.find('a',{'class':'blueword'})['href']
         print 'successfully get the target link!'
         return target_link
-    else:
-        print 'cannot find the target link!'
+    except TypeError:
+        target_link = ''
+        print 'cannot find target link!'
     time.sleep(np.random.randint(1, 3))
 
 # get_page(url_list[0])
