@@ -66,20 +66,21 @@ url_list = map(get_target_link, url_list)
 print url_list
 
 
-def get_trans_info(url):
-    s = requests.session()
-    res1 = s.get(url, headers=headers, verify=False)
-    soup1 = BS(res1.text, 'lxml')
-    info_url = soup1.find('iframe')['src']
-    driver = webdriver.PhantomJS(executable_path='/Users/Aldridge/phantomjs-2.1.1-macosx/bin/phantomjs')
-    driver.get(info_url)
-    jiejing = driver.find_element_by_id('b1')
-    time.sleep(1.5)
-    jiejing.click()
-    # trans_info_block_elem = WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_id('btnBus'))
-    # trans_info_block_elem.click()
-    soup2 = BS(driver.page_source, 'lxml')
-    # res2 = s.get(info_url, headers=headers, verify=False)
-    # soup2 = BS(res2.text, 'lxml')
-    div_bus = soup2.find('div', {'id':'divbus'})
-    print div_bus
+# def get_trans_info(url):
+#     s = requests.session()
+#     res1 = s.get(url, headers=headers, verify=False)
+#     soup1 = BS(res1.text, 'lxml')
+#     info_url = soup1.find('iframe')['src']
+#     driver = webdriver.PhantomJS(executable_path='/Users/Aldridge/phantomjs-2.1.1-macosx/bin/phantomjs')
+#     driver.get(info_url)
+#     jiejing = driver.find_element_by_id('b1')
+#     time.sleep(1.5)
+#     jiejing.click()
+#     # trans_info_block_elem = WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_id('btnBus'))
+#     # trans_info_block_elem.click()
+#     soup2 = BS(driver.page_source, 'lxml')
+#     # res2 = s.get(info_url, headers=headers, verify=False)
+#     # soup2 = BS(res2.text, 'lxml')
+#     div_bus = soup2.find('div', {'id':'divbus'})
+#     print div_bus
+# to be added!
