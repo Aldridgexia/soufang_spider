@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 import requests
 import numpy as np
-from bs4 import BeautifulSoup as BS 
+from bs4 import BeautifulSoup as BS
 from pandas import DataFrame
-import pandas as pd 
+import pandas as pd
 pd.set_option('expand_frame_repr', False)
 
 headers = {
@@ -81,8 +81,9 @@ for i in xrange(149, 154):
 
 # 测试
 # for key in school_deal_link_dict.keys():
-# 	print key 
+# 	print key
 
 # for value in school_deal_link_dict.values():
 # 	print value
+
 # print school_deal_link_df

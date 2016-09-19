@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 import requests
 import numpy as np
-import pandas as pd 
-from pandas import DataFrame 
+import pandas as pd
+from pandas import DataFrame
 from urlparse import urlsplit
-from bs4 import BeautifulSoup as BS 
+from bs4 import BeautifulSoup as BS
 import re
 import time
 from get_school_deal_link import school_deal_link_dict, school_deal_link_df
@@ -14,7 +14,6 @@ headers = {
 	"accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
 	"accept-encoding":"gzip, deflate, sdch",
 	"accept-language":"zh-CN,zh;q=0.8,en;q=0.6",
-	"referer":"https://www.quantnet.com/tracker/",
 	"upgrade-insecure-requests":"1",
 }
 usr_agents = [
@@ -31,11 +30,11 @@ time_start = time.time()
 
 # 存放全部爬取内容的DataFrame
 df_all = DataFrame({
-	'community_name':'', 
-	u'floor_area(㎡)':'', 
-	'unit':'', 
-	u'avg_price(元/㎡)':'', 
-	u'total_price(万/套)':'', 
+	'community_name':'',
+	u'floor_area(㎡)':'',
+	'unit':'',
+	u'avg_price(元/㎡)':'',
+	u'total_price(万/套)':'',
 	'turnover_time':'',
 	'district': '',
 	'school_name': ''}, index=[])
@@ -68,11 +67,11 @@ for base_url in school_deal_link_dict.values():
 			print('Cannot find any deal!')
 		# result DataFrame lists below
 		df_in_page = DataFrame({
-			'community_name':'', 
-			u'floor_area(㎡)':'', 
-			'unit':'', 
-			u'avg_price(元/㎡)':'', 
-			u'total_price(万/套)':'', 
+			'community_name':'',
+			u'floor_area(㎡)':'',
+			'unit':'',
+			u'avg_price(元/㎡)':'',
+			u'total_price(万/套)':'',
 			'turnover_time':'',
 			'district': '',
 			'school_name': ''}, index=[0])
@@ -144,4 +143,4 @@ for base_url in school_deal_link_dict.values():
 print df_all
 time_end = time.time()
 print 'total processing time: %fs' % (time_end - time_start)
-df_all.to_csv('/Users/Aldridge/soufang_spider/enhanced_total_result.csv', encoding='utf-8')
+df_all.to_csv('/Users/Aldridge/soufang_spider/total_result_160913.csv', encoding='utf-8')

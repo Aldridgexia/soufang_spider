@@ -1,16 +1,19 @@
 # -*- coding:utf-8 -*-
+# 获取小区的交通情况
+
 import re
-import time
 import requests
+import time
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
-from bs4 import BeautifulSoup as BS 
+from bs4 import BeautifulSoup as BS
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import *
-from from_xiaoqu_name_to_xiangqing_url import xiangqing_url_list, xiaoqu_names_df, xiangqing_url_df
+from from_xiaoqu_name_to_xiangqing_url import xiangqing_url_list, xiaoqu_names
+from requests.exceptions import MissingSchema
 
 headers = {
     "User-Agent":'',
@@ -31,16 +34,22 @@ judge_num = np.random.randint(0,5)
 headers["User-Agent"] = usr_agents[judge_num]
 
 driver = webdriver.PhantomJS(executable_path='/Users/Aldridge/phantomjs-2.1.1-macosx/bin/phantomjs')
-
+driver.set_window_size(1124, 850)
 
 # 函数主体部分，测试用
 def get_trans_info(url):
     if url == '':
         trans_needed_df = DataFrame(columns=['station_num', 'line_num', 'metro'], index=[0])
         return trans_needed_df
-    res1 = requests.get(url, headers=headers, verify=False)
+    try:
+        res1 = requests.get(url, headers=headers, verify=False)
+    except MissingSchema as e:
+        print e
+        trans_needed_df = DataFrame(columns=['station_num', 'line_num', 'metro'], index=[0])
+        return trans_needed_df
     soup1 = BS(res1.text, 'lxml')
-    info_url = soup1.find('iframe')['src']
+    # print soup1.prettify()
+    info_url = soup1.find_all('iframe')[1]['src']
     # print info_url
     # driver = webdriver.PhantomJS(executable_path='/Users/Aldridge/phantomjs-2.1.1-macosx/bin/phantomjs')
     driver.get(info_url)
@@ -48,55 +57,61 @@ def get_trans_info(url):
     ditu_elem = WebDriverWait(driver, 20).until(lambda driver: driver.find_element_by_id('b2'))
     hover = ActionChains(driver).move_to_element(ditu_elem)
     hover.perform()
+    jiaotong_elem = WebDriverWait(driver, 20).until(lambda driver: driver.find_element_by_id('btnBus'))
+    jiaotong_elem.click()
+    try:
+        WebDriverWait(driver, 20).until(lambda driver: driver.find_element_by_class_name('tab'))
+    except TimeoutException as e:
+        print e
+        trans_needed_df = DataFrame(columns=['station_num', 'line_num', 'metro'], index=[0])
+        return trans_needed_df
+    # time.sleep(5)
     soup2 = BS(driver.page_source, 'lxml')
+    # print soup2.prettify()
     div_bus = soup2.find('div', {'id':'divbus'})
     # print div_bus
 
-    # 存储站台和距离信息的容器
-    trans_info_df = DataFrame(columns=['line_num', 'distance'], index=[0])
-    temp_dict = {'line_num':'', 'distance':''}
-    tr_num = 0
     try:
+        station_num = 0
+        line_num = 0
+        total_line = []
         have_metro = False
         for tr in div_bus.table.tbody:
             # print tr
-            temp_dict['line_num'] = tr.th.text
-            temp_dict['distance'] = tr.td.text
+            line_info = tr.th.text
+            dis_info = tr.td.text
             # print temp_dict
-            match_distance = re.findall(r'\d+', temp_dict['distance'])
+            match_distance = re.findall(r'\d+', dis_info)
             pattern = re.compile(u'【地铁】')
-            match_metro = re.search(pattern, temp_dict['line_num'])
-            if match_metro and (int(match_distance[0]) <= 1000):
-                have_metro = True
-                print 'have metro!'
-                print match_distance[0]
+            match_metro = re.search(pattern, line_info)
+            if (match_metro):
+                if(int(match_distance[0]) <= 1000):
+                    have_metro = True
+                    print 'have metro!'
+                    print match_distance[0]
+                else:
+                    pass
             elif (int(match_distance[0]) <= 500):
-                print 'got one!'
-                match_line = re.findall(r'\d+', temp_dict['line_num'])
+                print 'got one bus line!'
+                match_line = re.findall(r'\d+', line_info)
                 # print len(set(match_line))
-                temp_dict['line_num'] = len(set(match_line))
-                # print temp_dict
-                trans_info_df.ix[tr_num] = temp_dict
-                tr_num += 1
+                # line_num += len(set(match_line))
+                total_line += match_line
+                station_num += 1
             else:
                 print 'not this one!'
                 pass
+        line_num = len(set(total_line))
     except AttributeError:
         print 'fail to find trans info!'
         print info_url
 
-    bus_station_num = len(trans_info_df)
-    bus_line_num = trans_info_df['line_num'].sum()
-    # print trans_info_df
-    # print bus_station_num
-    # print bus_line_num
-    # print have_metro
-    trans_needed_df = DataFrame(columns=['station_num', 'line_num', 'metro'], index=[0])
-    trans_needed_df['station_num'][0] = bus_station_num
-    trans_needed_df['line_num'][0] = bus_line_num
-    trans_needed_df['metro'] = have_metro
-    print trans_needed_df
-    return trans_needed_df
+    trans_info_df = DataFrame(columns=['station_num', 'line_num', 'metro'])
+    trans_info_df['station_num'] = [station_num]
+    trans_info_df['line_num'] = [line_num]
+    trans_info_df['metro'] = [have_metro]
+    print trans_info_df
+    return trans_info_df
 
 # get_trans_info('http://jinchenzhiguangwk.fang.com/xiangqing/')
 # get_trans_info('http://wendingyuanyj.fang.com/xiangqing/')
