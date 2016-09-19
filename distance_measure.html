@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=zoAixGASpIxE2jAmUx3IHs0R1IMjETRH"></script>
+    <title>地址解析</title>
+</head>
+<body>
+    <div id="allmap"></div>
+</body>
+</html>
+<script type="text/javascript">
+    // 百度地图API功能
+    // 创建一个地图实例
+    var map = new BMap.Map("allmap");
+    // 定位地图中心和缩放级别
+    map.centerAndZoom("杭州",12);
+    // 创建地址解析器实例
+    var myGeo = new BMap.Geocoder();
+    // 钱江新城的坐标
+    var point_qjxc = new BMap.Point(120.218566, 30.246336);
+    // 武林商圈的坐标
+    var point_wlsq = new BMap.Point(120.166444, 30.272367);
+    // 测试用小区名称列表
+    var names = [
+    "耀江文鼎苑",
+    "春江花月",
+    "万科北宸之光"
+    ]
+    // 定义测量上述小区分别到钱江新城和武林商圈的直线距离的方法
+    function disMeasure(names){
+        // 定义存储测量结果的数组result
+        var result = [];
+        // 循环处理小区列表中的各个元素
+        for(var i=0; i<names.length; i++){
+            // var name = names[i];
+            // 地址解析器实例的getPoint 方法，传入三个参数，第一个参数为待解析的字符串，如『耀江文鼎苑』，
+            // 第二个参数为一个用户自定义功能的匿名回调函数，第三个参数为查询所在的城市名称字符串，如『杭州市』
+            myGeo.getPoint(names[i], function(point){
+                if (point) {
+                    // alert(point.lng + ", " + point.lat);
+                    //alert("该点到钱江新城的距离为：" + map.getDistance(point, point_qjxc).toFixed(2) + "米！"+ "\n" + "该点到武林商圈的距离为：" + map.getDistance(point,point_wlsq).toFixed(2) + "米！");
+                    // 该点到钱江新城（qjxc）的距离，精确到小数点后两位
+                    var dis1 = map.getDistance(point, point_qjxc).toFixed(2);
+                    dis1 = (dis1/1000).toFixed(2);
+                    // 该点到武林商圈（wlsq）的距离，精确到小数点后两位
+                    var dis2 = map.getDistance(point, point_wlsq).toFixed(2);
+                    dis2 = (dis2/1000).toFixed(2);
+                    // 定义一个对象dis_pair,储存以上两个距离
+                    var dis_pair = {to_qjxc: dis1, to_wlsq: dis2, xiaoqu:names[i]};
+                    //alert(dis_pair);
+                    // 将dis_pair对象放入result 中
+                    result.push(dis_pair);
+                    // 此处若进行打印可以看到正常结果，第一次循环为长度为1的数组，第二次为长度为2的数组，以此类推
+                    // alert(result);
+                    // alert(i);
+                    if(result.length === names.length){
+                      for(var j=0;j<result.length;j++){
+                          alert("result" + j + ": " + result[j].xiaoqu + ", " + result[j].to_qjxc + ", " + result[j].to_wlsq);
+                      }
+                    }
+                }else{
+                    // 异常处理
+                    alert("您选择地址没有解析到结果!");
+                }
+            }, "杭州市");
+        }
+        // 然而在循环结束后打印结果为空，因为循环尚未执行（？）
+        // alert(result);
+        // 返回result 也为空，即未对result 进行push 操作
+        return result;
+    }
+
+    // alert("distance result: " + "\n"
+    //     + "to_qjxc: " + dis_pair.to_qjxc + "km\n"
+    //     + "to_wlsq: " + dis_pair.to_wlsq + "km\n");
+    disMeasure(names);
+
+    // 因此我的问题是，如何在循环结束后获取包含正确测距结果的result数组，内含3个元素，每个元素是一个对象，包含两个属性
+</script>
