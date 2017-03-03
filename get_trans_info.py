@@ -33,8 +33,7 @@ usr_agents = [
 judge_num = np.random.randint(0,5)
 headers["User-Agent"] = usr_agents[judge_num]
 
-driver = webdriver.PhantomJS(executable_path='/Users/Aldridge/phantomjs-2.1.1-macosx/bin/phantomjs')
-driver.set_window_size(1124, 850)
+# driver = webdriver.PhantomJS(executable_path='/Users/Aldridge/phantomjs-2.1.1-macosx/bin/phantomjs')
 
 # 函数主体部分，测试用
 def get_trans_info(url):
@@ -51,7 +50,8 @@ def get_trans_info(url):
     # print soup1.prettify()
     info_url = soup1.find_all('iframe')[1]['src']
     # print info_url
-    # driver = webdriver.PhantomJS(executable_path='/Users/Aldridge/phantomjs-2.1.1-macosx/bin/phantomjs')
+    driver = webdriver.PhantomJS(executable_path='/Users/Aldridge/phantomjs-2.1.1-macosx/bin/phantomjs')
+    driver.set_window_size(1124, 850)
     driver.get(info_url)
     # 需要模拟光标移动到『地图』元素上方可捕捉div_bus 内容
     ditu_elem = WebDriverWait(driver, 20).until(lambda driver: driver.find_element_by_id('b2'))
